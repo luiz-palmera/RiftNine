@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Jersey 15", system-ui, sans-serif;
+  --font-body: "Jersey 15", system-ui, sans-serif;
+
+  --color-bg: #25222a;
+  --color-surface: #f1e8f3;
+  --color-surface-muted: #d8bfdc;
+
+  --color-purple: #8b4fa3;
+  --color-purple-dark: #5a2f68;
+  --color-purple-light: #c989d4;
+
+  --color-player-blue: #4d8dff;
+  --color-player-red: #e85d5d;
+
+  --color-text-main: #241f28;
+  --color-text-light: #f8f4fa;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text-light);
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer utilities {
+  .clip-chamfer {
+    clip-path: polygon(
+      12px 0,
+      calc(100% - 12px) 0,
+      100% 12px,
+      100% calc(100% - 12px),
+      calc(100% - 12px) 100%,
+      12px 100%,
+      0 calc(100% - 12px),
+      0 12px
+    );
+  }
+
+  .pixel-shadow {
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+  }
+}
