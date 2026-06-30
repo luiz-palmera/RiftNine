@@ -1,3 +1,5 @@
-export default function App() {
-  return <div className="bg-purple p-20 text-white text-4xl">Rift9</div>;
-}
+import { Home } from "./pages/home";
+
+export const App = () => {
+  return <Home />;
+};
