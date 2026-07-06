@@ -4,13 +4,18 @@
   --font-display: "Jersey 15", system-ui, sans-serif;
   --font-body: "Jersey 15", system-ui, sans-serif;
 
-  --color-bg: #25222a;
+  --color-bg: #14141E;
   --color-surface: #f1e8f3;
   --color-surface-muted: #d8bfdc;
 
   --color-purple: #8b4fa3;
+  --color-purple-accent: #9B5DB4;
   --color-purple-dark: #5a2f68;
   --color-purple-light: #c989d4;
+
+  --color-red: #D43A3E;
+  --color-red-accent:#E54246;   
+  --color-red-shadow: #98171B;
 
   --color-player-blue: #4d8dff;
   --color-player-red: #e85d5d;
