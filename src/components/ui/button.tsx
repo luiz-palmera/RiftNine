@@ -1,4 +1,5 @@
-import { cn } from "../../utils/cn";
+import { cn } from "@/utils/cn";
+import { motion } from "motion/react";
 
 type ButtonProps = {
   title: string;
@@ -12,17 +13,28 @@ export const Button = ({
   onClick,
 }: ButtonProps) => {
   return (
-    <>
-      <div
+    <motion.div
+      initial={{ scale: 0.5 }}
+      animate={{ scale: 1, transition: { duration: 0.2 } }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className={cn(
+        "p-0.5 clip-chamfer",
+        variant === "default" && "bg-purple-dark",
+        variant === "destructive" && " bg-red-shadow ",
+      )}
+    >
+      <motion.div
         className={cn(
           "inline-flex w-fit items-center clip-chamfer px-6 py-2 cursor-pointer pixel-shadow",
-          variant === "default" && "bg-purple hover:bg-purple-dark",
-          variant === "destructive" && "pixel-shadow bg-player-red",
+          variant === "default" && "bg-purple hover:bg-purple-accent",
+          variant === "destructive" &&
+            "pixel-shadow bg-red hover:bg-red-accent ",
         )}
         onClick={onClick}
       >
         <p className="text-2xl">{title}</p>
-      </div>
-    </>
+      </motion.div>
+    </motion.div>
   );
 };
