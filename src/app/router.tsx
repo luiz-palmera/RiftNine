@@ -1,5 +1,5 @@
 import { Home } from "@/pages/home";
-import { SoloGame } from "@/pages/solo-game";
+import { Daily } from "@/pages/daily";
 import { createBrowserRouter } from "react-router";
 
 export const router = createBrowserRouter([
@@ -9,6 +9,6 @@ export const router = createBrowserRouter([
   },
   {
     path: "/daily",
-    element: <SoloGame />,
+    element: <Daily />,
   },
 ]);
