@@ -26,7 +26,7 @@ export const Button = ({
     >
       <motion.div
         className={cn(
-          "inline-flex w-fit items-center clip-chamfer px-6 py-2 cursor-pointer pixel-shadow",
+          "items-center justify-center flex clip-chamfer px-6 py-2 cursor-pointer pixel-shadow",
           variant === "default" && "bg-purple hover:bg-purple-accent",
           variant === "destructive" &&
             "pixel-shadow bg-red hover:bg-red-accent ",
