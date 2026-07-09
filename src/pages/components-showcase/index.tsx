@@ -1,5 +1,5 @@
 import { GameBoard } from "@/components/game/game-board";
-import { GameCell } from "@/components/game/game-cell";
+import { mockDailyGame } from "@/components/game/mock-daily-game";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Info } from "@/components/ui/info";
@@ -40,24 +40,10 @@ export const ComponentsShowcase = () => {
           </div>
           <div className="flex gap-2 flex-col">
             <p>Game:</p>
-            <GameBoard>
-              <GameCell mode="logo"></GameCell>
-              <GameCell mode="indicator"></GameCell>
-              <GameCell mode="indicator"></GameCell>
-              <GameCell mode="indicator"></GameCell>
-              <GameCell mode="indicator"></GameCell>
-              <GameCell mode="correct"></GameCell>
-              <GameCell mode="correct"></GameCell>
-              <GameCell mode="correct"></GameCell>
-              <GameCell mode="indicator"></GameCell>
-              <GameCell mode="correct"></GameCell>
-              <GameCell mode="correct"></GameCell>
-              <GameCell mode="correct"></GameCell>
-              <GameCell mode="indicator"></GameCell>
-              <GameCell mode="correct"></GameCell>
-              <GameCell mode="correct"></GameCell>
-              <GameCell mode="correct"></GameCell>
-            </GameBoard>
+            <GameBoard
+              columns={mockDailyGame.columns}
+              rows={mockDailyGame.rows}
+            />
           </div>
         </div>
       </div>

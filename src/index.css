@@ -49,6 +49,10 @@
   * {
     box-sizing: border-box;
   }
+
+  ::selection {
+	background: #c989d4;
+}
 }
 
 @layer utilities {
