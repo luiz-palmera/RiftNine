@@ -13,8 +13,9 @@
 
   --color-purple: #8b4fa3;
   --color-purple-accent: #9B5DB4;
-  --color-purple-dark: #5a2f68;
+  --color-purple-dark: #673272;
   --color-purple-light: #c989d4;
+  --color-purple-surface: #BF73AF;
 
   --color-red: #D43A3E;
   --color-red-accent:#E54246;   
@@ -48,6 +49,10 @@
   * {
     box-sizing: border-box;
   }
+
+  ::selection {
+	background: #c989d4;
+}
 }
 
 @layer utilities {

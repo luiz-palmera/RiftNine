@@ -1,9 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Info } from "@/components/ui/info";
 import { useNavigate } from "react-router";
-import { Clock, Trophy } from "pixelarticons/react";
-import { Card } from "@/components/ui/card";
-import { SearchBar } from "@/components/ui/search-bar";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -18,18 +14,10 @@ export const Home = () => {
           onClick={() => navigate("/daily")}
         />
         <Button
-          title="Exit"
+          title="Components"
           variant="destructive"
-          onClick={() => {
-            console.log("Entrando...");
-          }}
+          onClick={() => navigate("/components")}
         />
-        <Info icon={<Trophy />} title="Score" content={0} />
-        <Card title="MATCH INFO">
-          <Info icon={<Trophy />} title="Score" content={12} />
-          <Info icon={<Clock />} title="Time" content={"2:35"} />
-        </Card>
-        <SearchBar />
       </div>
     </>
   );
