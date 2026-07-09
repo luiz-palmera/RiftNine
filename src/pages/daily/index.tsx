@@ -16,12 +16,14 @@ import { SearchBar } from "@/components/ui/search-bar";
 export const Daily = () => {
   const [selectedCell, setSelectedCell] = useState<GameBoardPosition>();
   const [searchValue, setSearchValue] = useState("");
+  const [placeholder, setPlaceholder] = useState("Select a square to guess...");
   const [guesses, setGuesses] = useState<Record<string, GameBoardGuess>>({});
   const [feedback, setFeedback] = useState("Pick a square");
 
   const handleCellSelect = (cell: GameBoardPosition) => {
     setSelectedCell(cell);
     setSearchValue("");
+    setPlaceholder("Champion name");
     setFeedback(`${cell.row.label} + ${cell.column.label}`);
   };
 
@@ -60,7 +62,7 @@ export const Daily = () => {
           <p className="text-2xl">{feedback}</p>
           <SearchBar
             value={searchValue}
-            placeholder="Champion name"
+            placeholder={placeholder}
             disabled={!selectedCell}
             onChange={setSearchValue}
             onSubmit={handleGuessSubmit}

@@ -64,15 +64,38 @@ export const GameCell = ({
     mode === "correct" && "bg-green-600",
     mode === "indicator" && "bg-purple-surface text-black",
     mode === "logo" && "bg-purple-dark ",
-    isSelected && "outline-3 outline-purple-light outline-offset-[-6px]",
   );
+
+  const shouldPulse = isSelected && mode !== "correct";
 
   if (onClick) {
     return (
       <motion.button
         type="button"
         className={className}
-        onClick={onClick}
+        animate={
+          shouldPulse
+            ? {
+                scale: [1, 1.08, 1],
+                opacity: [0.8, 1, 0.8],
+              }
+            : {
+                scale: 1,
+                opacity: 1,
+              }
+        }
+        transition={
+          shouldPulse
+            ? {
+                duration: 1.2,
+                ease: "easeInOut",
+                repeat: Infinity,
+              }
+            : {
+                duration: 0.15,
+              }
+        }
+        onClick={mode !== "correct" ? onClick : () => {}}
         aria-label={label}
       >
         {content}
