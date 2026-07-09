@@ -15,35 +15,35 @@ import { getGameBoardCellId } from "./game-board.utils";
 export const mockDailyGame = {
   columns: [
     {
-      id: "marksman",
-      label: "Marksman",
-      imageSrc: marksman,
-      kind: "role",
-    },
-    {
       id: "mage",
       label: "Mage",
       imageSrc: mage,
       kind: "role",
     },
     {
-      id: "zaun",
-      label: "Zaun",
-      imageSrc: zaun,
-      kind: "region",
+      id: "tank",
+      label: "Tank",
+      imageSrc: tank,
+      kind: "role",
     },
-  ] satisfies GameBoardIndicator[],
-  rows: [
     {
       id: "bandle-city",
       label: "Bandle City",
       imageSrc: bandleCity,
       kind: "region",
     },
+  ] satisfies GameBoardIndicator[],
+  rows: [
     {
-      id: "tank",
-      label: "Tank",
-      imageSrc: tank,
+      id: "zaun",
+      label: "Zaun",
+      imageSrc: zaun,
+      kind: "region",
+    },
+    {
+      id: "marksman",
+      label: "Marksman",
+      imageSrc: marksman,
       kind: "role",
     },
     {
@@ -54,41 +54,224 @@ export const mockDailyGame = {
   ] satisfies GameBoardIndicator[],
 };
 
-export const mockDailySolutions: Record<string, GameBoardSolution> = {
-  [getGameBoardCellId("bandle-city", "marksman")]: {
-    championId: "teemo",
-    championName: "Teemo",
-    championImg: teemo,
-    acceptedNames: ["the swift scout"],
-  },
-  [getGameBoardCellId("bandle-city", "mage")]: {
-    championId: "veigar",
-    championName: "Veigar",
-  },
-  [getGameBoardCellId("bandle-city", "zaun")]: {
-    championId: "ziggs",
-    championName: "Ziggs",
-  },
-  [getGameBoardCellId("tank", "mage")]: {
-    championId: "galio",
-    championName: "Galio",
-  },
-  [getGameBoardCellId("tank", "zaun")]: {
-    championId: "zac",
-    championName: "Zac",
-  },
-  [getGameBoardCellId("yordle", "marksman")]: {
-    championId: "tristana",
-    championName: "Tristana",
-  },
-  [getGameBoardCellId("yordle", "mage")]: {
-    championId: "veigar",
-    championName: "Veigar",
-  },
-  [getGameBoardCellId("yordle", "zaun")]: {
-    championId: "ziggs",
-    championName: "Ziggs",
-  },
+export const mockDailySolutions: Record<string, GameBoardSolution[]> = {
+  [getGameBoardCellId("zaun", "mage")]: [
+    {
+      championId: "viktor",
+      championName: "Viktor",
+    },
+    {
+      championId: "ekko",
+      championName: "Ekko",
+    },
+    {
+      championId: "seraphine",
+      championName: "Seraphine",
+    },
+    {
+      championId: "singed",
+      championName: "Singed",
+    },
+  ],
+  [getGameBoardCellId("zaun", "tank")]: [
+    {
+      championId: "zac",
+      championName: "Zac",
+    },
+    {
+      championId: "dr-mundo",
+      championName: "Dr. Mundo",
+      acceptedNames: ["mundo", "dr mundo"],
+    },
+    {
+      championId: "urgot",
+      championName: "Urgot",
+    },
+    {
+      championId: "warwick",
+      championName: "Warwick",
+    },
+    {
+      championId: "blitzcrank",
+      championName: "Blitzcrank",
+    },
+    {
+      championId: "singed",
+      championName: "Singed",
+    },
+  ],
+  [getGameBoardCellId("zaun", "bandle-city")]: [
+    {
+      championId: "ziggs",
+      championName: "Ziggs",
+    },
+    {
+      championId: "heimerdinger",
+      championName: "Heimerdinger",
+      acceptedNames: ["heimer"],
+    },
+  ],
+  [getGameBoardCellId("marksman", "mage")]: [
+    {
+      championId: "ezreal",
+      championName: "Ezreal",
+    },
+    {
+      championId: "corki",
+      championName: "Corki",
+    },
+    {
+      championId: "kaisa",
+      championName: "Kai'Sa",
+      acceptedNames: ["kai sa", "kaisa"],
+    },
+    {
+      championId: "varus",
+      championName: "Varus",
+    },
+    {
+      championId: "teemo",
+      championName: "Teemo",
+      championImg: teemo,
+      acceptedNames: ["the swift scout"],
+    },
+  ],
+  [getGameBoardCellId("marksman", "tank")]: [
+    {
+      championId: "urgot",
+      championName: "Urgot",
+    },
+    {
+      championId: "gnar",
+      championName: "Gnar",
+    },
+  ],
+  [getGameBoardCellId("marksman", "bandle-city")]: [
+    {
+      championId: "teemo",
+      championName: "Teemo",
+      championImg: teemo,
+      acceptedNames: ["the swift scout"],
+    },
+    {
+      championId: "tristana",
+      championName: "Tristana",
+    },
+    {
+      championId: "corki",
+      championName: "Corki",
+    },
+  ],
+  [getGameBoardCellId("yordle", "mage")]: [
+    {
+      championId: "veigar",
+      championName: "Veigar",
+    },
+    {
+      championId: "vex",
+      championName: "Vex",
+    },
+    {
+      championId: "lulu",
+      championName: "Lulu",
+    },
+    {
+      championId: "yuumi",
+      championName: "Yuumi",
+    },
+    {
+      championId: "rumble",
+      championName: "Rumble",
+    },
+    {
+      championId: "ziggs",
+      championName: "Ziggs",
+    },
+    {
+      championId: "heimerdinger",
+      championName: "Heimerdinger",
+      acceptedNames: ["heimer"],
+    },
+    {
+      championId: "kennen",
+      championName: "Kennen",
+    },
+  ],
+  [getGameBoardCellId("yordle", "tank")]: [
+    {
+      championId: "gnar",
+      championName: "Gnar",
+    },
+    {
+      championId: "poppy",
+      championName: "Poppy",
+    },
+    {
+      championId: "kled",
+      championName: "Kled",
+    },
+  ],
+  [getGameBoardCellId("yordle", "bandle-city")]: [
+    {
+      championId: "teemo",
+      championName: "Teemo",
+      championImg: teemo,
+      acceptedNames: ["the swift scout"],
+    },
+    {
+      championId: "tristana",
+      championName: "Tristana",
+    },
+    {
+      championId: "corki",
+      championName: "Corki",
+    },
+    {
+      championId: "gnar",
+      championName: "Gnar",
+    },
+    {
+      championId: "veigar",
+      championName: "Veigar",
+    },
+    {
+      championId: "vex",
+      championName: "Vex",
+    },
+    {
+      championId: "lulu",
+      championName: "Lulu",
+    },
+    {
+      championId: "yuumi",
+      championName: "Yuumi",
+    },
+    {
+      championId: "rumble",
+      championName: "Rumble",
+    },
+    {
+      championId: "ziggs",
+      championName: "Ziggs",
+    },
+    {
+      championId: "heimerdinger",
+      championName: "Heimerdinger",
+      acceptedNames: ["heimer"],
+    },
+    {
+      championId: "kennen",
+      championName: "Kennen",
+    },
+    {
+      championId: "poppy",
+      championName: "Poppy",
+    },
+    {
+      championId: "kled",
+      championName: "Kled",
+    },
+  ],
 };
 
 export const toVisibleGuess = ({
