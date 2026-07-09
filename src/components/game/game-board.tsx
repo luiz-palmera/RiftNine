@@ -71,15 +71,18 @@ export const GameBoard = ({
                 championImg={guess?.championImg}
                 championName={guess?.championName}
                 isSelected={selectedCellId === id}
-                onClick={() =>
-                  onCellSelect?.({
-                    id,
-                    row,
-                    column,
-                    rowIndex,
-                    columnIndex,
-                    guess,
-                  })
+                onClick={
+                  guess
+                    ? undefined
+                    : () =>
+                        onCellSelect?.({
+                          id,
+                          row,
+                          column,
+                          rowIndex,
+                          columnIndex,
+                          guess,
+                        })
                 }
               />
             );
