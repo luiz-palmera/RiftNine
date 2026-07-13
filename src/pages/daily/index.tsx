@@ -59,8 +59,7 @@ const MatchChat = ({ messages }: MatchChatProps) => {
                 message.tone === "error" && "text-red-accent",
               )}
             >
-              <span className="text-purple-light">[R9]</span>{" "}
-              {message.content}
+              <span className="text-purple-light">[R9]</span> {message.content}
             </p>
           ))}
         </div>
@@ -89,10 +88,7 @@ export const Daily = () => {
     window.requestAnimationFrame(() => searchInputRef.current?.focus());
   };
 
-  const pushChatMessage = (
-    content: string,
-    tone: MatchChatMessage["tone"],
-  ) => {
+  const pushChatMessage = (content: string, tone: MatchChatMessage["tone"]) => {
     const nextMessage = {
       id: nextChatMessageId.current,
       content,
@@ -101,10 +97,7 @@ export const Daily = () => {
 
     nextChatMessageId.current += 1;
 
-    setChatMessages((currentMessages) => [
-      ...currentMessages,
-      nextMessage,
-    ]);
+    setChatMessages((currentMessages) => [...currentMessages, nextMessage]);
   };
 
   useEffect(() => {
