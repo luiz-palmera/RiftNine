@@ -17,57 +17,9 @@ import {
 import { SearchBar } from "@/components/ui/search-bar";
 import { Card } from "@/components/ui/card";
 import { Info } from "@/components/ui/info";
-import { Clock, Heart, Trophy } from "pixelarticons/react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/utils/cn";
-
-type MatchChatMessage = {
-  id: number;
-  content: string;
-  tone: "system" | "success" | "error";
-};
-
-type MatchChatProps = {
-  messages: MatchChatMessage[];
-};
-
-const MatchChat = ({ messages }: MatchChatProps) => {
-  const messagesRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesRef.current?.scrollTo({
-      top: messagesRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
-
-  return (
-    <div className="p-0.5 bg-purple clip-chamfer">
-      <div className="clip-chamfer bg-bg px-3 py-2 min-h-34 flex flex-col">
-        <p className="text-purple-light text-xl leading-none">MATCH CHAT</p>
-        <div
-          ref={messagesRef}
-          className="mt-2 flex max-h-28 flex-1 flex-col gap-1 overflow-y-auto pr-1 [scrollbar-color:var(--color-purple-light)_var(--color-bg)] [scrollbar-width:thin]"
-        >
-          {messages.map((message) => (
-            <p
-              key={message.id}
-              className={cn(
-                "text-lg leading-none",
-                message.tone === "system" && "text-muted-foreground",
-                message.tone === "success" && "text-green-400",
-                message.tone === "error" && "text-red-accent",
-              )}
-            >
-              <span className="text-purple-light">[R9]</span>{" "}
-              {message.content}
-            </p>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+import { Calendar2, Clock, Heart, Trophy } from "pixelarticons/react";
+import { Header } from "@/components/ui/header";
+import { MatchChat, type MatchChatMessage } from "@/components/game/match-chat";
 
 export const Daily = () => {
   const [selectedCell, setSelectedCell] = useState<GameBoardPosition>();
@@ -89,10 +41,7 @@ export const Daily = () => {
     window.requestAnimationFrame(() => searchInputRef.current?.focus());
   };
 
-  const pushChatMessage = (
-    content: string,
-    tone: MatchChatMessage["tone"],
-  ) => {
+  const pushChatMessage = (content: string, tone: MatchChatMessage["tone"]) => {
     const nextMessage = {
       id: nextChatMessageId.current,
       content,
@@ -101,10 +50,7 @@ export const Daily = () => {
 
     nextChatMessageId.current += 1;
 
-    setChatMessages((currentMessages) => [
-      ...currentMessages,
-      nextMessage,
-    ]);
+    setChatMessages((currentMessages) => [...currentMessages, nextMessage]);
   };
 
   useEffect(() => {
@@ -168,36 +114,51 @@ export const Daily = () => {
   };
 
   return (
-    <div className="gap-3 min-h-screen p-6 flex items-center justify-center">
-      <div className="w-full max-w-xl flex flex-col gap-4">
-        <GameBoard
-          columns={mockDailyGame.columns}
-          rows={mockDailyGame.rows}
-          guesses={guesses}
-          selectedCellId={selectedCell?.id}
-          onCellSelect={handleCellSelect}
-        />
-        <div className="flex flex-col gap-2">
-          <p className="text-2xl">{selectedCriteria}</p>
-          <SearchBar
-            ref={searchInputRef}
-            value={searchValue}
-            placeholder={placeholder}
-            disabled={!selectedCell}
-            onChange={setSearchValue}
-            onSubmit={handleGuessSubmit}
-          />
+    <>
+      <Header />
+      <main className="flex min-h-[calc(100vh-6.5rem)] items-start justify-center px-6 pt-10 pb-8">
+        <div className="grid w-full max-w-5xl grid-cols-[minmax(0,36rem)_minmax(0,24rem)] items-stretch gap-3">
+          <div className="col-start-1 row-start-1">
+            <GameBoard
+              columns={mockDailyGame.columns}
+              rows={mockDailyGame.rows}
+              guesses={guesses}
+              selectedCellId={selectedCell?.id}
+              onCellSelect={handleCellSelect}
+            />
+          </div>
+
+          <div className="col-start-2 row-start-1 flex min-h-0 flex-col">
+            <div className="flex items-center gap-2 text-4xl text-purple">
+              <Calendar2 />
+              <p>Daily Challenge</p>
+            </div>
+
+            <div className="flex-1">
+              <Card title="MATCH INFO">
+                <Info content="2:30" icon={<Clock />} title="Time" />
+                <Info content="3" icon={<Heart />} title="Lives" />
+                <Info content="3" icon={<Trophy />} title="Score" />
+
+                <MatchChat messages={chatMessages} />
+              </Card>
+            </div>
+          </div>
+
+          <div className="col-start-1 row-start-2 flex flex-col gap-2">
+            <p className="text-2xl">{selectedCriteria}</p>
+
+            <SearchBar
+              ref={searchInputRef}
+              value={searchValue}
+              placeholder={placeholder}
+              disabled={!selectedCell}
+              onChange={setSearchValue}
+              onSubmit={handleGuessSubmit}
+            />
+          </div>
         </div>
-      </div>
-      <div className="w-full max-w-sm ">
-        <Card title="MATCH INFO">
-          <Info content={"2:30"} icon={<Clock />} title="Time" />
-          <Info content={"3"} icon={<Heart />} title="Lives" />
-          <Info content={"3"} icon={<Trophy />} title="Score" />
-          <MatchChat messages={chatMessages} />
-          <Button title="SURRENDER" onClick={() => {}} variant="destructive" />
-        </Card>
-      </div>
-    </div>
+      </main>
+    </>
   );
 };
