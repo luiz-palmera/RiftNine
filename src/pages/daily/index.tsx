@@ -18,7 +18,6 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { Card } from "@/components/ui/card";
 import { Info } from "@/components/ui/info";
 import { Calendar2, Clock, Heart, Trophy } from "pixelarticons/react";
-import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
 import { MatchChat, type MatchChatMessage } from "@/components/game/match-chat";
 
@@ -142,12 +141,6 @@ export const Daily = () => {
                 <Info content="3" icon={<Trophy />} title="Score" />
 
                 <MatchChat messages={chatMessages} />
-
-                <Button
-                  title="SURRENDER"
-                  onClick={() => {}}
-                  variant="destructive"
-                />
               </Card>
             </div>
           </div>
