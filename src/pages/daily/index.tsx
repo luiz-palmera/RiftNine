@@ -20,11 +20,14 @@ import { Info } from "@/components/ui/info";
 import { Calendar2, Clock, Heart, Trophy } from "pixelarticons/react";
 import { Header } from "@/components/ui/header";
 import { MatchChat, type MatchChatMessage } from "@/components/game/match-chat";
+import useTimer from "@/hooks/useTimer";
 
 export const Daily = () => {
-  const [selectedCell, setSelectedCell] = useState<GameBoardPosition>();
+  const { formattedTime, stop } = useTimer();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const nextChatMessageId = useRef(2);
+  const [lives, setLives] = useState(3);
+  const [selectedCell, setSelectedCell] = useState<GameBoardPosition>();
   const [searchValue, setSearchValue] = useState("");
   const [placeholder, setPlaceholder] = useState("Select a square to guess...");
   const [guesses, setGuesses] = useState<Record<string, GameBoardGuess>>({});
@@ -81,6 +84,8 @@ export const Daily = () => {
 
     if (!solution) {
       pushChatMessage("Try another champion.", "error");
+      pushChatMessage("You lost one life.💔", "error");
+      setLives(lives - 1);
       focusSearchInput();
       return;
     }
@@ -105,6 +110,7 @@ export const Daily = () => {
       setPlaceholder("Board complete");
       setSelectedCriteria("Board complete");
       pushChatMessage("Board complete.", "system");
+      stop();
       return;
     }
 
@@ -136,8 +142,8 @@ export const Daily = () => {
 
             <div className="flex-1">
               <Card title="MATCH INFO">
-                <Info content="2:30" icon={<Clock />} title="Time" />
-                <Info content="3" icon={<Heart />} title="Lives" />
+                <Info content={formattedTime} icon={<Clock />} title="Time" />
+                <Info content={lives} icon={<Heart />} title="Lives" />
                 <Info content="3" icon={<Trophy />} title="Score" />
 
                 <MatchChat messages={chatMessages} />
