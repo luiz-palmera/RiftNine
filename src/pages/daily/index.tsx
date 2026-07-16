@@ -21,6 +21,7 @@ import { Calendar2, Clock, Heart, Trophy } from "pixelarticons/react";
 import { Header } from "@/components/ui/header";
 import { MatchChat, type MatchChatMessage } from "@/components/game/match-chat";
 import useTimer from "@/hooks/useTimer";
+import { ResultModal } from "./components/result-moda";
 
 export const Daily = () => {
   const { formattedTime, stop } = useTimer();
@@ -30,6 +31,7 @@ export const Daily = () => {
   const [selectedCell, setSelectedCell] = useState<GameBoardPosition>();
   const [searchValue, setSearchValue] = useState("");
   const [placeholder, setPlaceholder] = useState("Select a square to guess...");
+  const [showResults, setShowResults] = useState(true);
   const [guesses, setGuesses] = useState<Record<string, GameBoardGuess>>({});
   const [selectedCriteria, setSelectedCriteria] = useState("Pick a square");
   const [chatMessages, setChatMessages] = useState<MatchChatMessage[]>([
@@ -122,6 +124,7 @@ export const Daily = () => {
   return (
     <>
       <Header />
+      <ResultModal isOpen={showResults} onClose={() => setShowResults(false)} />
       <main className="flex min-h-[calc(100vh-6.5rem)] items-start justify-center px-6 pt-10 pb-8">
         <div className="grid w-full max-w-5xl grid-cols-[minmax(0,36rem)_minmax(0,24rem)] items-stretch gap-3">
           <div className="col-start-1 row-start-1">
