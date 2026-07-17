@@ -12,6 +12,180 @@ import type {
 } from "./game-board.types";
 import { getGameBoardCellId } from "./game-board.utils";
 
+type MockChampionSolution = GameBoardSolution & {
+  championEmoji: string;
+};
+
+const mockChampions = {
+  blitzcrank: {
+    championId: "blitzcrank",
+    championName: "Blitzcrank",
+    championEmoji: "🤖",
+  },
+  corki: {
+    championId: "corki",
+    championName: "Corki",
+    championEmoji: "✈️",
+  },
+  "dr-mundo": {
+    championId: "dr-mundo",
+    championName: "Dr. Mundo",
+    championEmoji: "🩺",
+    acceptedNames: ["mundo", "dr mundo"],
+  },
+  ekko: {
+    championId: "ekko",
+    championName: "Ekko",
+    championEmoji: "⏱️",
+  },
+  ezreal: {
+    championId: "ezreal",
+    championName: "Ezreal",
+    championEmoji: "🧭",
+  },
+  galio: {
+    championId: "galio",
+    championName: "Galio",
+    championEmoji: "🛡️",
+  },
+  garen: {
+    championId: "garen",
+    championName: "Garen",
+    championEmoji: "⚔️",
+  },
+  gnar: {
+    championId: "gnar",
+    championName: "Gnar",
+    championEmoji: "🦴",
+  },
+  gragas: {
+    championId: "gragas",
+    championName: "Gragas",
+    championEmoji: "🍻",
+  },
+  gwen: {
+    championId: "gwen",
+    championName: "Gwen",
+    championEmoji: "🪡",
+  },
+  heimerdinger: {
+    championId: "heimerdinger",
+    championName: "Heimerdinger",
+    championEmoji: "🔧",
+    acceptedNames: ["heimer"],
+  },
+  "kai-sa": {
+    championId: "kaisa",
+    championName: "Kai'Sa",
+    championEmoji: "✨",
+    acceptedNames: ["kai sa", "kaisa"],
+  },
+  kennen: {
+    championId: "kennen",
+    championName: "Kennen",
+    championEmoji: "⚡",
+  },
+  kled: {
+    championId: "kled",
+    championName: "Kled",
+    championEmoji: "🪓",
+  },
+  lulu: {
+    championId: "lulu",
+    championName: "Lulu",
+    championEmoji: "🪄",
+  },
+  poppy: {
+    championId: "poppy",
+    championName: "Poppy",
+    championEmoji: "🔨",
+  },
+  rumble: {
+    championId: "rumble",
+    championName: "Rumble",
+    championEmoji: "🔥",
+  },
+  seraphine: {
+    championId: "seraphine",
+    championName: "Seraphine",
+    championEmoji: "🎤",
+  },
+  singed: {
+    championId: "singed",
+    championName: "Singed",
+    championEmoji: "🧪",
+  },
+  teemo: {
+    championId: "teemo",
+    championName: "Teemo",
+    championImg: teemo,
+    championEmoji: "🍄",
+    acceptedNames: ["the swift scout"],
+  },
+  tristana: {
+    championId: "tristana",
+    championName: "Tristana",
+    championEmoji: "🚀",
+  },
+  urgot: {
+    championId: "urgot",
+    championName: "Urgot",
+    championEmoji: "🦾",
+  },
+  varus: {
+    championId: "varus",
+    championName: "Varus",
+    championEmoji: "🏹",
+  },
+  veigar: {
+    championId: "veigar",
+    championName: "Veigar",
+    championEmoji: "🌑",
+  },
+  vex: {
+    championId: "vex",
+    championName: "Vex",
+    championEmoji: "🌘",
+  },
+  viktor: {
+    championId: "viktor",
+    championName: "Viktor",
+    championEmoji: "⚙️",
+  },
+  warwick: {
+    championId: "warwick",
+    championName: "Warwick",
+    championEmoji: "🐺",
+  },
+  yuumi: {
+    championId: "yuumi",
+    championName: "Yuumi",
+    championEmoji: "📖",
+  },
+  zac: {
+    championId: "zac",
+    championName: "Zac",
+    championEmoji: "🟢",
+  },
+  ziggs: {
+    championId: "ziggs",
+    championName: "Ziggs",
+    championEmoji: "💣",
+  },
+} satisfies Record<string, MockChampionSolution>;
+
+type MockChampionId = keyof typeof mockChampions;
+
+const getMockChampion = (championId: MockChampionId) => {
+  return mockChampions[championId];
+};
+
+export const mockDailyChampionOptions: MockChampionSolution[] = Object.values(
+  mockChampions,
+).sort((firstChampion, secondChampion) =>
+  firstChampion.championName.localeCompare(secondChampion.championName),
+);
+
 export const mockDailyGame = {
   columns: [
     {
@@ -56,221 +230,69 @@ export const mockDailyGame = {
 
 export const mockDailySolutions: Record<string, GameBoardSolution[]> = {
   [getGameBoardCellId("zaun", "mage")]: [
-    {
-      championId: "viktor",
-      championName: "Viktor",
-    },
-    {
-      championId: "ekko",
-      championName: "Ekko",
-    },
-    {
-      championId: "seraphine",
-      championName: "Seraphine",
-    },
-    {
-      championId: "singed",
-      championName: "Singed",
-    },
+    getMockChampion("viktor"),
+    getMockChampion("ekko"),
+    getMockChampion("seraphine"),
+    getMockChampion("singed"),
   ],
   [getGameBoardCellId("zaun", "tank")]: [
-    {
-      championId: "zac",
-      championName: "Zac",
-    },
-    {
-      championId: "dr-mundo",
-      championName: "Dr. Mundo",
-      acceptedNames: ["mundo", "dr mundo"],
-    },
-    {
-      championId: "urgot",
-      championName: "Urgot",
-    },
-    {
-      championId: "warwick",
-      championName: "Warwick",
-    },
-    {
-      championId: "blitzcrank",
-      championName: "Blitzcrank",
-    },
-    {
-      championId: "singed",
-      championName: "Singed",
-    },
+    getMockChampion("zac"),
+    getMockChampion("dr-mundo"),
+    getMockChampion("urgot"),
+    getMockChampion("warwick"),
+    getMockChampion("blitzcrank"),
+    getMockChampion("singed"),
   ],
   [getGameBoardCellId("zaun", "bandle-city")]: [
-    {
-      championId: "ziggs",
-      championName: "Ziggs",
-    },
-    {
-      championId: "heimerdinger",
-      championName: "Heimerdinger",
-      acceptedNames: ["heimer"],
-    },
+    getMockChampion("ziggs"),
+    getMockChampion("heimerdinger"),
   ],
   [getGameBoardCellId("marksman", "mage")]: [
-    {
-      championId: "ezreal",
-      championName: "Ezreal",
-    },
-    {
-      championId: "corki",
-      championName: "Corki",
-    },
-    {
-      championId: "kaisa",
-      championName: "Kai'Sa",
-      acceptedNames: ["kai sa", "kaisa"],
-    },
-    {
-      championId: "varus",
-      championName: "Varus",
-    },
-    {
-      championId: "teemo",
-      championName: "Teemo",
-      championImg: teemo,
-      acceptedNames: ["the swift scout"],
-    },
+    getMockChampion("ezreal"),
+    getMockChampion("corki"),
+    getMockChampion("kai-sa"),
+    getMockChampion("varus"),
+    getMockChampion("teemo"),
   ],
   [getGameBoardCellId("marksman", "tank")]: [
-    {
-      championId: "urgot",
-      championName: "Urgot",
-    },
-    {
-      championId: "gnar",
-      championName: "Gnar",
-    },
+    getMockChampion("urgot"),
+    getMockChampion("gnar"),
   ],
   [getGameBoardCellId("marksman", "bandle-city")]: [
-    {
-      championId: "teemo",
-      championName: "Teemo",
-      championImg: teemo,
-      acceptedNames: ["the swift scout"],
-    },
-    {
-      championId: "tristana",
-      championName: "Tristana",
-    },
-    {
-      championId: "corki",
-      championName: "Corki",
-    },
+    getMockChampion("teemo"),
+    getMockChampion("tristana"),
+    getMockChampion("corki"),
   ],
   [getGameBoardCellId("yordle", "mage")]: [
-    {
-      championId: "veigar",
-      championName: "Veigar",
-    },
-    {
-      championId: "vex",
-      championName: "Vex",
-    },
-    {
-      championId: "lulu",
-      championName: "Lulu",
-    },
-    {
-      championId: "yuumi",
-      championName: "Yuumi",
-    },
-    {
-      championId: "rumble",
-      championName: "Rumble",
-    },
-    {
-      championId: "ziggs",
-      championName: "Ziggs",
-    },
-    {
-      championId: "heimerdinger",
-      championName: "Heimerdinger",
-      acceptedNames: ["heimer"],
-    },
-    {
-      championId: "kennen",
-      championName: "Kennen",
-    },
+    getMockChampion("veigar"),
+    getMockChampion("vex"),
+    getMockChampion("lulu"),
+    getMockChampion("yuumi"),
+    getMockChampion("rumble"),
+    getMockChampion("ziggs"),
+    getMockChampion("heimerdinger"),
+    getMockChampion("kennen"),
   ],
   [getGameBoardCellId("yordle", "tank")]: [
-    {
-      championId: "gnar",
-      championName: "Gnar",
-    },
-    {
-      championId: "poppy",
-      championName: "Poppy",
-    },
-    {
-      championId: "kled",
-      championName: "Kled",
-    },
+    getMockChampion("gnar"),
+    getMockChampion("poppy"),
+    getMockChampion("kled"),
   ],
   [getGameBoardCellId("yordle", "bandle-city")]: [
-    {
-      championId: "teemo",
-      championName: "Teemo",
-      championImg: teemo,
-      acceptedNames: ["the swift scout"],
-    },
-    {
-      championId: "tristana",
-      championName: "Tristana",
-    },
-    {
-      championId: "corki",
-      championName: "Corki",
-    },
-    {
-      championId: "gnar",
-      championName: "Gnar",
-    },
-    {
-      championId: "veigar",
-      championName: "Veigar",
-    },
-    {
-      championId: "vex",
-      championName: "Vex",
-    },
-    {
-      championId: "lulu",
-      championName: "Lulu",
-    },
-    {
-      championId: "yuumi",
-      championName: "Yuumi",
-    },
-    {
-      championId: "rumble",
-      championName: "Rumble",
-    },
-    {
-      championId: "ziggs",
-      championName: "Ziggs",
-    },
-    {
-      championId: "heimerdinger",
-      championName: "Heimerdinger",
-      acceptedNames: ["heimer"],
-    },
-    {
-      championId: "kennen",
-      championName: "Kennen",
-    },
-    {
-      championId: "poppy",
-      championName: "Poppy",
-    },
-    {
-      championId: "kled",
-      championName: "Kled",
-    },
+    getMockChampion("teemo"),
+    getMockChampion("tristana"),
+    getMockChampion("corki"),
+    getMockChampion("gnar"),
+    getMockChampion("veigar"),
+    getMockChampion("vex"),
+    getMockChampion("lulu"),
+    getMockChampion("yuumi"),
+    getMockChampion("rumble"),
+    getMockChampion("ziggs"),
+    getMockChampion("heimerdinger"),
+    getMockChampion("kennen"),
+    getMockChampion("poppy"),
+    getMockChampion("kled"),
   ],
 };
 
@@ -278,10 +300,12 @@ export const toVisibleGuess = ({
   championId,
   championName,
   championImg,
+  championEmoji,
 }: GameBoardSolution): GameBoardGuess => {
   return {
     championId,
     championName,
     championImg,
+    championEmoji,
   };
 };

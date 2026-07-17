@@ -9,6 +9,7 @@ export type GameBoardGuess = {
   championId: string;
   championName: string;
   championImg?: string;
+  championEmoji?: string;
 };
 
 export type GameBoardSolution = GameBoardGuess & {

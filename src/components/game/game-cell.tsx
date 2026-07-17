@@ -1,12 +1,14 @@
 import { cn } from "@/utils/cn";
 import { motion } from "motion/react";
 import { Trophy } from "pixelarticons/react";
+import { ChampionAvatar } from "./champion-avatar";
 
 type GameCellProps = {
   mode: "search" | "correct" | "indicator" | "logo" | "secondarySearch";
   indicatorImg?: string;
   label?: string;
   championImg?: string;
+  championEmoji?: string;
   championName?: string;
   isSelected?: boolean;
   onClick?: () => void;
@@ -17,6 +19,7 @@ export const GameCell = ({
   indicatorImg,
   label,
   championImg,
+  championEmoji,
   championName,
   isSelected,
   onClick,
@@ -44,11 +47,12 @@ export const GameCell = ({
       )}
       {mode === "correct" && (
         <>
-          {championImg && (
-            <img
-              className="h-20 object-contain"
-              src={championImg}
-              alt={championName}
+          {championName && (
+            <ChampionAvatar
+              championName={championName}
+              championImg={championImg}
+              championEmoji={championEmoji}
+              size="lg"
             />
           )}
           <p className="text-xl uppercase leading-none">{championName}</p>

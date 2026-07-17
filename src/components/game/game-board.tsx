@@ -69,6 +69,7 @@ export const GameBoard = ({
                 }
                 label={`Find a champion for ${row.label} and ${column.label}`}
                 championImg={guess?.championImg}
+                championEmoji={guess?.championEmoji}
                 championName={guess?.championName}
                 isSelected={selectedCellId === id}
                 onClick={

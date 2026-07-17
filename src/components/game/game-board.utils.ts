@@ -10,7 +10,12 @@ export const getGameBoardCellId = (rowId: string, columnId: string) => {
 };
 
 export const normalizeChampionGuess = (value: string) => {
-  return value.trim().toLowerCase().replace(/\s+/g, " ");
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
 };
 
 export const findChampionGuessMatch = (
