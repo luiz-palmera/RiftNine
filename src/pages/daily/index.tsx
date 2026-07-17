@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { GameBoard } from "@/components/game/game-board";
 import {
+  mockDailyChampionOptions,
   mockDailyGame,
   mockDailySolutions,
   toVisibleGuess,
@@ -13,6 +14,7 @@ import type {
 import {
   findChampionGuessMatch,
   getNextOpenGameBoardPosition,
+  normalizeChampionGuess,
 } from "@/components/game/game-board.utils";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Card } from "@/components/ui/card";
@@ -34,6 +36,28 @@ const getChallengeDate = () => {
   const day = String(date.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+};
+
+const getChampionAutocompleteSuggestions = (value: string) => {
+  const normalizedValue = normalizeChampionGuess(value);
+
+  if (!normalizedValue) {
+    return [];
+  }
+
+  return mockDailyChampionOptions
+    .filter((champion) =>
+      normalizeChampionGuess(champion.championName).startsWith(
+        normalizedValue,
+      ),
+    )
+    .slice(0, 5)
+    .map(({ championId, championName, championImg, championEmoji }) => ({
+      id: championId,
+      label: championName,
+      imageSrc: championImg,
+      emoji: championEmoji,
+    }));
 };
 
 export const Daily = () => {
@@ -61,10 +85,18 @@ export const Daily = () => {
       tone: "system",
     },
   ]);
+  const championSuggestions = useMemo(
+    () => getChampionAutocompleteSuggestions(searchValue),
+    [searchValue],
+  );
 
-  const focusSearchInput = () => {
+  const focusSearchInput = useCallback(() => {
+    if (lives <= 0 || showResults) {
+      return;
+    }
+
     window.requestAnimationFrame(() => searchInputRef.current?.focus());
-  };
+  }, [lives, showResults]);
 
   const pushChatMessage = (content: string, tone: MatchChatMessage["tone"]) => {
     const nextMessage = {
@@ -89,10 +121,14 @@ export const Daily = () => {
   };
 
   useEffect(() => {
-    if (selectedCell) {
+    if (selectedCell && !showResults) {
       focusSearchInput();
     }
-  }, [selectedCell]);
+  }, [focusSearchInput, selectedCell, showResults]);
+
+  const isKnownChampion = (value: string) => {
+    return Boolean(findChampionGuessMatch(value, mockDailyChampionOptions));
+  };
 
   const handleCellSelect = (cell: GameBoardPosition) => {
     if (lives <= 0 || showResults) {
@@ -111,6 +147,9 @@ export const Daily = () => {
       setShowResults(true);
       return;
     }
+    if (!isKnownChampion(value)) {
+      return;
+    }
     if (!selectedCell) {
       setSelectedCriteria("Pick a square");
       pushChatMessage("Pick a square first.", "error");
@@ -127,6 +166,7 @@ export const Daily = () => {
       const nextScore = Math.max(0, score - 27);
 
       pushChatMessage("You lost one life. -27pts", "error");
+      setSearchValue("");
       setLives(nextLives);
       setScore(nextScore);
       setMissedCellIds((currentMissedCellIds) => ({
@@ -249,6 +289,8 @@ export const Daily = () => {
               value={searchValue}
               placeholder={placeholder}
               disabled={!selectedCell}
+              suggestions={championSuggestions}
+              isSubmitAllowed={isKnownChampion}
               onChange={setSearchValue}
               onSubmit={handleGuessSubmit}
             />
