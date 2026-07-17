@@ -9,9 +9,8 @@ import {
 
 import { GameBoard } from "@/components/game/game-board";
 import {
+  getDailyChallengeForDate,
   mockDailyChampionOptions,
-  mockDailyGame,
-  mockDailySolutions,
   toVisibleGuess,
 } from "@/components/game/mock-daily-game";
 import type {
@@ -46,16 +45,10 @@ const playSfx = (soundSrc: string) => {
   void audio.play().catch(() => {});
 };
 
-const getChallengeDate = () => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-};
-
-const getChampionAutocompleteSuggestions = (value: string) => {
+const getChampionAutocompleteSuggestions = (
+  value: string,
+  usedChampionIds = new Set<string>(),
+) => {
   const normalizedValue = normalizeChampionGuess(value);
 
   if (!normalizedValue) {
@@ -64,24 +57,30 @@ const getChampionAutocompleteSuggestions = (value: string) => {
 
   return mockDailyChampionOptions
     .filter((champion) =>
-      normalizeChampionGuess(champion.championName).startsWith(
-        normalizedValue,
-      ),
+      normalizeChampionGuess(champion.championName).startsWith(normalizedValue),
     )
     .slice(0, 5)
-    .map(({ championId, championName, championImg, championEmoji }) => ({
-      id: championId,
-      label: championName,
-      imageSrc: championImg,
-      emoji: championEmoji,
-    }));
+    .map(({ championId, championName, championImg, championEmoji }) => {
+      const isAlreadySelected = usedChampionIds.has(championId);
+
+      return {
+        id: championId,
+        label: championName,
+        imageSrc: championImg,
+        emoji: championEmoji,
+        disabled: isAlreadySelected,
+        trailingLabel: isAlreadySelected ? "Already selected" : undefined,
+      };
+    });
 };
 
 export const Daily = () => {
   const { formattedTime, seconds, stop } = useTimer();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const nextChatMessageId = useRef(2);
-  const [challengeDate] = useState(getChallengeDate);
+  const [dailyChallenge] = useState(() => getDailyChallengeForDate());
+  const { game: dailyGame, solutions: dailySolutions } = dailyChallenge;
+  const [challengeDate] = useState(dailyChallenge.dateLabel);
   const [lives, setLives] = useState(3);
   const [selectedCell, setSelectedCell] = useState<GameBoardPosition>();
   const [score, setScore] = useState(90);
@@ -106,9 +105,13 @@ export const Daily = () => {
       tone: "system",
     },
   ]);
+  const usedChampionIds = useMemo(
+    () => new Set(Object.values(guesses).map((guess) => guess.championId)),
+    [guesses],
+  );
   const championSuggestions = useMemo(
-    () => getChampionAutocompleteSuggestions(searchValue),
-    [searchValue],
+    () => getChampionAutocompleteSuggestions(searchValue, usedChampionIds),
+    [searchValue, usedChampionIds],
   );
 
   const focusSearchInput = useCallback(() => {
@@ -192,18 +195,32 @@ export const Daily = () => {
       setShowResults(true);
       return;
     }
-    if (!isKnownChampion(value)) {
+
+    const submittedChampion = findChampionGuessMatch(
+      value,
+      mockDailyChampionOptions,
+    );
+
+    if (!submittedChampion) {
       return;
     }
+
     if (!selectedCell) {
       setSelectedCriteria("Pick a square");
       pushChatMessage("Pick a square first.", "error");
       return;
     }
 
+    if (usedChampionIds.has(submittedChampion.championId)) {
+      setSearchBarVariant("default");
+      pushChatMessage("Champion already used", "error");
+      focusSearchInput();
+      return;
+    }
+
     const solution = findChampionGuessMatch(
       value,
-      mockDailySolutions[selectedCell.id],
+      dailySolutions[selectedCell.id],
     );
 
     if (!solution) {
@@ -242,8 +259,8 @@ export const Daily = () => {
       [selectedCell.id]: toVisibleGuess(solution),
     };
     const nextCell = getNextOpenGameBoardPosition({
-      rows: mockDailyGame.rows,
-      columns: mockDailyGame.columns,
+      rows: dailyGame.rows,
+      columns: dailyGame.columns,
       guesses: nextGuesses,
       currentCellId: selectedCell.id,
     });
@@ -272,7 +289,7 @@ export const Daily = () => {
     setSelectedCriteria(`${nextCell.row.label} + ${nextCell.column.label}`);
   };
 
-  const totalCells = mockDailyGame.rows.length * mockDailyGame.columns.length;
+  const totalCells = dailyGame.rows.length * dailyGame.columns.length;
   const completed = Object.keys(guesses).length === totalCells;
   const matchFinished = completed || lives <= 0;
 
@@ -294,8 +311,8 @@ export const Daily = () => {
         score={score}
         time={resultTime}
         timeBonus={timeBonus}
-        rows={mockDailyGame.rows}
-        columns={mockDailyGame.columns}
+        rows={dailyGame.rows}
+        columns={dailyGame.columns}
         guesses={guesses}
         missedCellIds={missedCellIds}
       />
@@ -306,8 +323,8 @@ export const Daily = () => {
         <div className="grid w-full max-w-5xl min-w-0 grid-cols-1 items-start gap-3 lg:grid-cols-[minmax(0,36rem)_minmax(0,24rem)] lg:items-stretch">
           <div className="order-1 min-w-0 lg:col-start-1 lg:row-start-1">
             <GameBoard
-              columns={mockDailyGame.columns}
-              rows={mockDailyGame.rows}
+              columns={dailyGame.columns}
+              rows={dailyGame.rows}
               guesses={guesses}
               selectedCellId={selectedCell?.id}
               onCellSelect={handleCellSelect}

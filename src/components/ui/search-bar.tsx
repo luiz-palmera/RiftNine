@@ -18,6 +18,8 @@ export type SearchBarSuggestion = {
   label: string;
   imageSrc?: string;
   emoji?: string;
+  disabled?: boolean;
+  trailingLabel?: string;
 };
 
 type SearchBarVariant = "default" | "destructive";
@@ -106,10 +108,46 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
       onChange?.(nextValue);
     };
 
+    const getNextEnabledSuggestionIndex = (
+      currentIndex: number,
+      direction: "next" | "previous",
+    ) => {
+      const enabledSuggestionIndexes = visibleSuggestions
+        .map((suggestion, index) => (suggestion.disabled ? -1 : index))
+        .filter((index) => index !== -1);
+
+      if (enabledSuggestionIndexes.length === 0) {
+        return -1;
+      }
+
+      const currentEnabledIndex =
+        enabledSuggestionIndexes.indexOf(currentIndex);
+
+      if (direction === "next") {
+        return enabledSuggestionIndexes[
+          currentEnabledIndex === -1 ||
+          currentEnabledIndex === enabledSuggestionIndexes.length - 1
+            ? 0
+            : currentEnabledIndex + 1
+        ];
+      }
+
+      return enabledSuggestionIndexes[
+        currentEnabledIndex <= 0
+          ? enabledSuggestionIndexes.length - 1
+          : currentEnabledIndex - 1
+      ];
+    };
+
     const selectSuggestion = (
       suggestion: SearchBarSuggestion,
       shouldSubmit = false,
     ) => {
+      if (suggestion.disabled) {
+        window.requestAnimationFrame(() => inputRef.current?.focus());
+        return;
+      }
+
       updateValue(suggestion.label);
       closeSuggestions();
       onSuggestionSelect?.(suggestion);
@@ -123,11 +161,20 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
       event.preventDefault();
 
       if (shouldShowSuggestions && highlightedSuggestionIndex >= 0) {
-        selectSuggestion(visibleSuggestions[highlightedSuggestionIndex]);
-        return;
+        const highlightedSuggestion =
+          visibleSuggestions[highlightedSuggestionIndex];
+
+        if (highlightedSuggestion && !highlightedSuggestion.disabled) {
+          selectSuggestion(highlightedSuggestion);
+          return;
+        }
       }
 
-      if (shouldShowSuggestions && visibleSuggestions.length === 1) {
+      if (
+        shouldShowSuggestions &&
+        visibleSuggestions.length === 1 &&
+        !visibleSuggestions[0].disabled
+      ) {
         closeSuggestions();
         onSubmit?.(visibleSuggestions[0].label);
         return;
@@ -168,7 +215,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         event.preventDefault();
         setIsSuggestionListVisible(true);
         setHighlightedSuggestionIndex((currentIndex) =>
-          currentIndex >= visibleSuggestions.length - 1 ? 0 : currentIndex + 1,
+          getNextEnabledSuggestionIndex(currentIndex, "next"),
         );
       }
 
@@ -176,12 +223,15 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         event.preventDefault();
         setIsSuggestionListVisible(true);
         setHighlightedSuggestionIndex((currentIndex) =>
-          currentIndex <= 0 ? visibleSuggestions.length - 1 : currentIndex - 1,
+          getNextEnabledSuggestionIndex(currentIndex, "previous"),
         );
       }
 
       if (event.key === "Enter" && shouldShowSuggestions) {
-        if (visibleSuggestions.length === 1) {
+        if (
+          visibleSuggestions.length === 1 &&
+          !visibleSuggestions[0].disabled
+        ) {
           event.preventDefault();
           closeSuggestions();
           onSubmit?.(visibleSuggestions[0].label);
@@ -207,12 +257,8 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
           className={cn(
             "flex min-w-0 items-center gap-2 border-3 border-purple bg-surface p-3",
             disabled && "border-gray-300 bg-gray-100",
-            !disabled &&
-              variant === "default" &&
-              "border-purple bg-surface",
-            !disabled &&
-              variant === "destructive" &&
-              "border-red bg-surface",
+            !disabled && variant === "default" && "border-purple bg-surface",
+            !disabled && variant === "destructive" && "border-red bg-surface",
           )}
           onSubmit={handleSubmit}
           autoComplete="off"
@@ -263,25 +309,43 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
                     role="option"
                     tabIndex={-1}
                     aria-selected={isHighlighted}
+                    aria-disabled={suggestion.disabled}
                     className={cn(
-                      "flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2 text-left text-xl outline-0 transition-colors sm:text-2xl",
-                      isHighlighted ? "bg-purple-surface/15" : "hover:bg-muted",
+                      "flex min-h-12 w-full items-center gap-3 px-3 py-2 text-left text-xl outline-0 transition-colors sm:text-2xl",
+                      suggestion.disabled
+                        ? "cursor-not-allowed text-gray-400 opacity-70"
+                        : "cursor-pointer",
+                      !suggestion.disabled &&
+                        (isHighlighted
+                          ? "bg-purple-surface/15"
+                          : "hover:bg-muted"),
                     )}
                     onMouseDown={(event) => {
                       event.preventDefault();
                       selectSuggestion(suggestion, true);
                     }}
-                    onMouseEnter={() => setHighlightedSuggestionIndex(index)}
+                    onMouseEnter={() => {
+                      if (!suggestion.disabled) {
+                        setHighlightedSuggestionIndex(index);
+                      }
+                    }}
                   >
-                    <ChampionAvatar
-                      championName={suggestion.label}
-                      championImg={suggestion.imageSrc}
-                      championEmoji={suggestion.emoji}
-                      size="sm"
-                    />
-                    <span className="min-w-0 truncate leading-none">
+                    <span className={cn(suggestion.disabled && "opacity-50")}>
+                      <ChampionAvatar
+                        championName={suggestion.label}
+                        championImg={suggestion.imageSrc}
+                        championEmoji={suggestion.emoji}
+                        size="sm"
+                      />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate leading-none">
                       {suggestion.label}
                     </span>
+                    {suggestion.trailingLabel && (
+                      <span className="shrink-0 text-right text-sm leading-none text-gray-400 sm:text-base">
+                        {suggestion.trailingLabel}
+                      </span>
+                    )}
                   </button>
                 </li>
               );
