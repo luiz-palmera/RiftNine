@@ -21,5 +21,5 @@ export default function useTimer() {
 
   const formattedTime = parseTime(seconds);
 
-  return { formattedTime, stop };
+  return { formattedTime, seconds, stop };
 }
