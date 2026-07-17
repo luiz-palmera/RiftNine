@@ -31,6 +31,7 @@ type SearchBarProps = {
   suggestions?: SearchBarSuggestion[];
   isSubmitAllowed?: (value: string) => boolean;
   onChange?: (value: string) => void;
+  onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
   onSubmit?: (value: string) => void;
   onSuggestionSelect?: (suggestion: SearchBarSuggestion) => void;
 };
@@ -46,6 +47,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
       suggestions = [],
       isSubmitAllowed,
       onChange,
+      onKeyDown,
       onSubmit,
       onSuggestionSelect,
     },
@@ -152,6 +154,12 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
     };
 
     const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown?.(event);
+
+      if (event.defaultPrevented) {
+        return;
+      }
+
       if (!hasInputValue || visibleSuggestions.length === 0) {
         return;
       }
