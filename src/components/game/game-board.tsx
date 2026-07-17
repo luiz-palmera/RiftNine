@@ -71,6 +71,7 @@ export const GameBoard = ({
                       : "secondarySearch"
                 }
                 label={`Find a champion for ${row.label} and ${column.label}`}
+                cellId={id}
                 championImg={guess?.championImg}
                 championEmoji={guess?.championEmoji}
                 championName={guess?.championName}

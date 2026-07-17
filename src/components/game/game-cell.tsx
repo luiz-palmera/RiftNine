@@ -10,6 +10,7 @@ type GameCellProps = {
   championImg?: string;
   championEmoji?: string;
   championName?: string;
+  cellId?: string;
   isSelected?: boolean;
   onClick?: () => void;
 };
@@ -21,6 +22,7 @@ export const GameCell = ({
   championImg,
   championEmoji,
   championName,
+  cellId,
   isSelected,
   onClick,
 }: GameCellProps) => {
@@ -52,12 +54,18 @@ export const GameCell = ({
       {mode === "correct" && (
         <>
           {championName && (
-            <ChampionAvatar
-              championName={championName}
-              championImg={championImg}
-              championEmoji={championEmoji}
-              size="lg"
-            />
+            <motion.div
+              initial={{ scale: 0.35, opacity: 0 }}
+              animate={{ scale: [0.35, 1.18, 1], opacity: 1 }}
+              transition={{ duration: 0.32, ease: "easeOut" }}
+            >
+              <ChampionAvatar
+                championName={championName}
+                championImg={championImg}
+                championEmoji={championEmoji}
+                size="lg"
+              />
+            </motion.div>
           )}
           <p
             className="max-w-full truncate text-[0.65rem] uppercase leading-none sm:text-sm lg:text-xl"
@@ -71,7 +79,7 @@ export const GameCell = ({
   );
 
   const className = cn(
-    "aspect-square min-w-0 overflow-hidden p-1 flex items-center justify-center select-none transition-colors sm:p-2 lg:p-3",
+    "aspect-square min-w-0 overflow-hidden p-1 flex items-center justify-center select-none transition-colors focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-purple-light sm:p-2 lg:p-3",
     mode === "search" && "bg-surface cursor-pointer",
     mode === "secondarySearch" && "bg-muted cursor-pointer",
     mode === "correct" && "bg-green-600",
@@ -85,7 +93,9 @@ export const GameCell = ({
     return (
       <motion.button
         type="button"
+        tabIndex={0}
         className={className}
+        data-game-cell-id={cellId}
         animate={
           shouldPulse
             ? {
@@ -110,6 +120,7 @@ export const GameCell = ({
         }
         onClick={mode !== "correct" ? onClick : () => {}}
         aria-label={label}
+        aria-selected={isSelected}
       >
         {content}
       </motion.button>
