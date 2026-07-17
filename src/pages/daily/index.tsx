@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 
 import { GameBoard } from "@/components/game/game-board";
 import {
@@ -23,10 +30,20 @@ import { Calendar2, Clock, Heart, Trophy } from "pixelarticons/react";
 import { Header } from "@/components/ui/header";
 import { MatchChat, type MatchChatMessage } from "@/components/game/match-chat";
 import useTimer from "@/hooks/useTimer";
+import hurtSfx from "@/assets/sfx/hurt.wav";
+import popSfx from "@/assets/sfx/pop_3.wav";
+import powerDownSfx from "@/assets/sfx/power_down.wav";
+import powerUpSfx from "@/assets/sfx/power_up_2.wav";
 import { ResultModal } from "./components/result-moda";
 
 const getTimeBonus = (elapsedSeconds: number) => {
   return Math.max(0, 90 - Math.floor(elapsedSeconds / 2));
+};
+
+const playSfx = (soundSrc: string) => {
+  const audio = new Audio(soundSrc);
+
+  void audio.play().catch(() => {});
 };
 
 const getChallengeDate = () => {
@@ -117,6 +134,7 @@ export const Daily = () => {
   const finishMatch = (finalBoardScore: number, completedMatch: boolean) => {
     const nextTimeBonus = completedMatch ? getTimeBonus(seconds) : 0;
 
+    playSfx(completedMatch ? powerUpSfx : powerDownSfx);
     setResultTime(formattedTime);
     setTimeBonus(nextTimeBonus);
     setScore(finalBoardScore + nextTimeBonus);
@@ -152,6 +170,23 @@ export const Daily = () => {
     setSearchBarVariant("default");
   };
 
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Tab" || event.shiftKey || !selectedCell) {
+      return;
+    }
+
+    const selectedCellButton = document.querySelector<HTMLButtonElement>(
+      `[data-game-cell-id="${selectedCell.id}"]`,
+    );
+
+    if (!selectedCellButton) {
+      return;
+    }
+
+    event.preventDefault();
+    selectedCellButton.focus();
+  };
+
   const handleGuessSubmit = (value: string) => {
     if (lives <= 0) {
       setShowResults(true);
@@ -175,6 +210,7 @@ export const Daily = () => {
       const nextLives = Math.max(0, lives - 1);
       const nextScore = Math.max(0, score - 27);
 
+      playSfx(hurtSfx);
       pushChatMessage("You lost one life. -27pts", "error");
       setSearchValue("");
       setSearchBarVariant("destructive");
@@ -214,6 +250,7 @@ export const Daily = () => {
 
     const nextScore = score + 9;
 
+    playSfx(popSfx);
     setGuesses(nextGuesses);
     setSearchValue("");
     setSearchBarVariant("default");
@@ -309,6 +346,7 @@ export const Daily = () => {
               suggestions={championSuggestions}
               isSubmitAllowed={isKnownChampion}
               onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyDown}
               onSubmit={handleGuessSubmit}
             />
           </div>
