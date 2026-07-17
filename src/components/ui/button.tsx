@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 
 type ButtonProps = {
   title: string;
-  variant?: "default" | "destructive";
+  variant?: "default" | "destructive" | "success";
   onClick: () => void;
 };
 

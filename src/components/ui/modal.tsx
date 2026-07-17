@@ -1,14 +1,47 @@
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 
+export type ModalVariant = "default" | "destructive" | "success";
+
+type ModalVariantStyles = {
+  bg: string;
+  border: string;
+  text: string;
+};
+
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
+  variant?: ModalVariant;
 };
 
-export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+const modalVariants = {
+  default: {
+    bg: "bg-purple",
+    border: "border-purple",
+    text: "text-purple",
+  },
+  destructive: {
+    bg: "bg-red",
+    border: "border-red",
+    text: "text-red",
+  },
+  success: {
+    bg: "bg-green-500",
+    border: "border-green-500",
+    text: "text-green-500",
+  },
+} satisfies Record<ModalVariant, ModalVariantStyles>;
+
+export const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  variant = "default",
+}: ModalProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -27,7 +60,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
           <motion.dialog
             open
             aria-modal="true"
-            className="relative m-0 border-0 bg-purple p-1 clip-chamfer"
+            className={`relative  p-1 clip-chamfer ${modalVariants[variant].bg}`}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -35,7 +68,9 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
           >
             <div className="bg-surface p-6 clip-chamfer">
               {title && (
-                <div className="border-b-2 border-purple text-purple">
+                <div
+                  className={`border-b-2 ${modalVariants[variant].border} ${modalVariants[variant].text}`}
+                >
                   <p className="text-2xl">{title}</p>
                 </div>
               )}
