@@ -1,9 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 
 import { GameBoard } from "@/components/game/game-board";
 import {
-  mockDailyGame,
-  mockDailySolutions,
+  getDailyChallengeForDate,
+  mockDailyChampionOptions,
   toVisibleGuess,
 } from "@/components/game/mock-daily-game";
 import type {
@@ -13,6 +20,7 @@ import type {
 import {
   findChampionGuessMatch,
   getNextOpenGameBoardPosition,
+  normalizeChampionGuess,
 } from "@/components/game/game-board.utils";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Card } from "@/components/ui/card";
@@ -21,30 +29,66 @@ import { Calendar2, Clock, Heart, Trophy } from "pixelarticons/react";
 import { Header } from "@/components/ui/header";
 import { MatchChat, type MatchChatMessage } from "@/components/game/match-chat";
 import useTimer from "@/hooks/useTimer";
+import hurtSfx from "@/assets/sfx/hurt.wav";
+import popSfx from "@/assets/sfx/pop_3.wav";
+import powerDownSfx from "@/assets/sfx/power_down.wav";
+import powerUpSfx from "@/assets/sfx/power_up_2.wav";
 import { ResultModal } from "./components/result-moda";
 
 const getTimeBonus = (elapsedSeconds: number) => {
   return Math.max(0, 90 - Math.floor(elapsedSeconds / 2));
 };
 
-const getChallengeDate = () => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+const playSfx = (soundSrc: string) => {
+  const audio = new Audio(soundSrc);
 
-  return `${year}-${month}-${day}`;
+  void audio.play().catch(() => {});
+};
+
+const getChampionAutocompleteSuggestions = (
+  value: string,
+  usedChampionIds = new Set<string>(),
+) => {
+  const normalizedValue = normalizeChampionGuess(value);
+
+  if (!normalizedValue) {
+    return [];
+  }
+
+  return mockDailyChampionOptions
+    .filter((champion) =>
+      normalizeChampionGuess(champion.championName).startsWith(normalizedValue),
+    )
+    .slice(0, 5)
+    .map(({ championId, championName, championImg, championEmoji }) => {
+      const isAlreadySelected = usedChampionIds.has(championId);
+
+      return {
+        id: championId,
+        label: championName,
+        imageSrc: championImg,
+        emoji: championEmoji,
+        disabled: isAlreadySelected,
+        trailingLabel: isAlreadySelected ? "Already selected" : undefined,
+      };
+    });
 };
 
 export const Daily = () => {
   const { formattedTime, seconds, stop } = useTimer();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const nextChatMessageId = useRef(2);
-  const [challengeDate] = useState(getChallengeDate);
+  const [dailyChallenge] = useState(() => getDailyChallengeForDate());
+  const { game: dailyGame, solutions: dailySolutions } = dailyChallenge;
+  const [challengeDate] = useState(dailyChallenge.dateLabel);
   const [lives, setLives] = useState(3);
   const [selectedCell, setSelectedCell] = useState<GameBoardPosition>();
   const [score, setScore] = useState(90);
   const [searchValue, setSearchValue] = useState("");
+  const [searchBarVariant, setSearchBarVariant] = useState<
+    "default" | "destructive"
+  >("default");
+  const [searchBarShakeKey, setSearchBarShakeKey] = useState(0);
   const [placeholder, setPlaceholder] = useState("Select a square to guess...");
   const [showResults, setShowResults] = useState(false);
   const [resultTime, setResultTime] = useState("00:00");
@@ -61,10 +105,22 @@ export const Daily = () => {
       tone: "system",
     },
   ]);
+  const usedChampionIds = useMemo(
+    () => new Set(Object.values(guesses).map((guess) => guess.championId)),
+    [guesses],
+  );
+  const championSuggestions = useMemo(
+    () => getChampionAutocompleteSuggestions(searchValue, usedChampionIds),
+    [searchValue, usedChampionIds],
+  );
 
-  const focusSearchInput = () => {
+  const focusSearchInput = useCallback(() => {
+    if (lives <= 0 || showResults) {
+      return;
+    }
+
     window.requestAnimationFrame(() => searchInputRef.current?.focus());
-  };
+  }, [lives, showResults]);
 
   const pushChatMessage = (content: string, tone: MatchChatMessage["tone"]) => {
     const nextMessage = {
@@ -81,6 +137,7 @@ export const Daily = () => {
   const finishMatch = (finalBoardScore: number, completedMatch: boolean) => {
     const nextTimeBonus = completedMatch ? getTimeBonus(seconds) : 0;
 
+    playSfx(completedMatch ? powerUpSfx : powerDownSfx);
     setResultTime(formattedTime);
     setTimeBonus(nextTimeBonus);
     setScore(finalBoardScore + nextTimeBonus);
@@ -89,10 +146,14 @@ export const Daily = () => {
   };
 
   useEffect(() => {
-    if (selectedCell) {
+    if (selectedCell && !showResults) {
       focusSearchInput();
     }
-  }, [selectedCell]);
+  }, [focusSearchInput, selectedCell, showResults]);
+
+  const isKnownChampion = (value: string) => {
+    return Boolean(findChampionGuessMatch(value, mockDailyChampionOptions));
+  };
 
   const handleCellSelect = (cell: GameBoardPosition) => {
     if (lives <= 0 || showResults) {
@@ -101,9 +162,32 @@ export const Daily = () => {
 
     setSelectedCell(cell);
     setSearchValue("");
+    setSearchBarVariant("default");
     setPlaceholder("Champion name");
     setSelectedCriteria(`${cell.row.label} + ${cell.column.label}`);
     focusSearchInput();
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
+    setSearchBarVariant("default");
+  };
+
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Tab" || event.shiftKey || !selectedCell) {
+      return;
+    }
+
+    const selectedCellButton = document.querySelector<HTMLButtonElement>(
+      `[data-game-cell-id="${selectedCell.id}"]`,
+    );
+
+    if (!selectedCellButton) {
+      return;
+    }
+
+    event.preventDefault();
+    selectedCellButton.focus();
   };
 
   const handleGuessSubmit = (value: string) => {
@@ -111,22 +195,43 @@ export const Daily = () => {
       setShowResults(true);
       return;
     }
+
+    const submittedChampion = findChampionGuessMatch(
+      value,
+      mockDailyChampionOptions,
+    );
+
+    if (!submittedChampion) {
+      return;
+    }
+
     if (!selectedCell) {
       setSelectedCriteria("Pick a square");
       pushChatMessage("Pick a square first.", "error");
       return;
     }
 
+    if (usedChampionIds.has(submittedChampion.championId)) {
+      setSearchBarVariant("default");
+      pushChatMessage("Champion already used", "error");
+      focusSearchInput();
+      return;
+    }
+
     const solution = findChampionGuessMatch(
       value,
-      mockDailySolutions[selectedCell.id],
+      dailySolutions[selectedCell.id],
     );
 
     if (!solution) {
       const nextLives = Math.max(0, lives - 1);
       const nextScore = Math.max(0, score - 27);
 
+      playSfx(hurtSfx);
       pushChatMessage("You lost one life. -27pts", "error");
+      setSearchValue("");
+      setSearchBarVariant("destructive");
+      setSearchBarShakeKey((currentShakeKey) => currentShakeKey + 1);
       setLives(nextLives);
       setScore(nextScore);
       setMissedCellIds((currentMissedCellIds) => ({
@@ -154,16 +259,18 @@ export const Daily = () => {
       [selectedCell.id]: toVisibleGuess(solution),
     };
     const nextCell = getNextOpenGameBoardPosition({
-      rows: mockDailyGame.rows,
-      columns: mockDailyGame.columns,
+      rows: dailyGame.rows,
+      columns: dailyGame.columns,
       guesses: nextGuesses,
       currentCellId: selectedCell.id,
     });
 
     const nextScore = score + 9;
 
+    playSfx(popSfx);
     setGuesses(nextGuesses);
     setSearchValue("");
+    setSearchBarVariant("default");
     pushChatMessage(`${solution.championName} locked in. + 9pts`, "success");
 
     if (!nextCell) {
@@ -182,7 +289,7 @@ export const Daily = () => {
     setSelectedCriteria(`${nextCell.row.label} + ${nextCell.column.label}`);
   };
 
-  const totalCells = mockDailyGame.rows.length * mockDailyGame.columns.length;
+  const totalCells = dailyGame.rows.length * dailyGame.columns.length;
   const completed = Object.keys(guesses).length === totalCells;
   const matchFinished = completed || lives <= 0;
 
@@ -204,30 +311,30 @@ export const Daily = () => {
         score={score}
         time={resultTime}
         timeBonus={timeBonus}
-        rows={mockDailyGame.rows}
-        columns={mockDailyGame.columns}
+        rows={dailyGame.rows}
+        columns={dailyGame.columns}
         guesses={guesses}
         missedCellIds={missedCellIds}
       />
       <main
-        className="flex min-h-[calc(100vh-6.5rem)] items-start justify-center px-6 pt-10 pb-8"
+        className="flex min-h-[calc(100dvh-5rem)] items-start justify-center px-3 pt-4 pb-6 sm:px-6 sm:pt-10 sm:pb-8"
         onClick={handleFinishedMatchClick}
       >
-        <div className="grid w-full max-w-5xl grid-cols-[minmax(0,36rem)_minmax(0,24rem)] items-stretch gap-3">
-          <div className="col-start-1 row-start-1">
+        <div className="grid w-full max-w-5xl min-w-0 grid-cols-1 items-start gap-3 lg:grid-cols-[minmax(0,36rem)_minmax(0,24rem)] lg:items-stretch">
+          <div className="order-1 min-w-0 lg:col-start-1 lg:row-start-1">
             <GameBoard
-              columns={mockDailyGame.columns}
-              rows={mockDailyGame.rows}
+              columns={dailyGame.columns}
+              rows={dailyGame.rows}
               guesses={guesses}
               selectedCellId={selectedCell?.id}
               onCellSelect={handleCellSelect}
             />
           </div>
 
-          <div className="col-start-2 row-start-1 flex min-h-0 flex-col">
-            <div className="flex items-center gap-2 text-4xl text-purple">
+          <div className="order-3 flex min-h-0 min-w-0 flex-col lg:col-start-2 lg:row-start-1">
+            <div className="flex min-w-0 items-center gap-2 text-3xl text-purple sm:text-4xl">
               <Calendar2 />
-              <p>Daily Challenge</p>
+              <p className="min-w-0 break-words">Daily Challenge</p>
             </div>
 
             <div className="flex-1">
@@ -241,15 +348,22 @@ export const Daily = () => {
             </div>
           </div>
 
-          <div className="col-start-1 row-start-2 flex flex-col gap-2">
-            <p className="text-2xl">{selectedCriteria}</p>
+          <div className="order-2 flex min-w-0 flex-col gap-2 lg:col-start-1 lg:row-start-2">
+            <p className="break-words text-xl sm:text-2xl">
+              {selectedCriteria}
+            </p>
 
             <SearchBar
               ref={searchInputRef}
               value={searchValue}
               placeholder={placeholder}
               disabled={!selectedCell}
-              onChange={setSearchValue}
+              variant={searchBarVariant}
+              shakeKey={searchBarShakeKey}
+              suggestions={championSuggestions}
+              isSubmitAllowed={isKnownChampion}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyDown}
               onSubmit={handleGuessSubmit}
             />
           </div>

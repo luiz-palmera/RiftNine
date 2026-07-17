@@ -75,8 +75,8 @@ export const ResultModal = ({
       onClose={onClose}
       title="GAME RESULTS"
     >
-      <div className="flex flex-col gap-4 items-center">
-        <p className="py-4 text-2xl flex items-center">
+      <div className="flex min-w-0 flex-col items-center gap-4">
+        <div className="flex min-w-0 items-center py-3 text-center text-xl sm:py-4 sm:text-2xl">
           {completed ? (
             <p>
               <GlitchText active variant={variant}>
@@ -101,23 +101,23 @@ export const ResultModal = ({
               </GlitchText>
             </span>
           )}
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center text-text-main">
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center text-text-main sm:gap-x-6">
           <div>
             <p className="text-sm uppercase text-text-main/70">Score</p>
-            <p className="text-4xl">{score}</p>
+            <p className="text-3xl sm:text-4xl">{score}</p>
           </div>
           <div>
             <p className="text-sm uppercase text-text-main/70">Time</p>
-            <p className="text-4xl">{time}</p>
+            <p className="text-3xl sm:text-4xl">{time}</p>
           </div>
           <div>
             <p className="text-sm uppercase text-text-main/70">Bonus</p>
-            <p className="text-4xl">+{timeBonus}</p>
+            <p className="text-3xl sm:text-4xl">+{timeBonus}</p>
           </div>
           <div>
             <p className="text-sm uppercase text-text-main/70">PICKS</p>
-            <p className="text-4xl">
+            <p className="text-3xl sm:text-4xl">
               {solvedCells}/{totalCells}
             </p>
           </div>
@@ -139,7 +139,7 @@ export const ResultModal = ({
                 <div
                   key={id}
                   className={cn(
-                    "size-20 clip-chamfer",
+                    "size-16 clip-chamfer sm:size-20",
                     isCorrect ? "bg-green-500" : "bg-red",
                   )}
                   title={`${row.label} + ${column.label}: ${
@@ -153,7 +153,7 @@ export const ResultModal = ({
             }),
           )}
         </div>
-        <div className="flex gap-3 p-3 mt-3 text-surface">
+        <div className="mt-3 flex flex-col gap-3 p-3 text-surface sm:flex-row">
           <div className="relative">
             {shareStatus === "copied" && (
               <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 bg-text-main px-3 py-1 text-xl text-surface pixel-shadow">

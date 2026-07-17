@@ -46,7 +46,7 @@ export const Modal = ({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-999 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-999 flex items-start justify-center overflow-y-auto bg-black/50 p-3 sm:items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -60,18 +60,18 @@ export const Modal = ({
           <motion.dialog
             open
             aria-modal="true"
-            className={`relative  p-1 clip-chamfer ${modalVariants[variant].bg}`}
+            className={`relative m-0 max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto p-1 clip-chamfer ${modalVariants[variant].bg}`}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="bg-surface p-6 clip-chamfer">
+            <div className="min-w-0 bg-surface p-3 clip-chamfer sm:p-6">
               {title && (
                 <div
                   className={`border-b-2 ${modalVariants[variant].border} ${modalVariants[variant].text}`}
                 >
-                  <p className="text-2xl">{title}</p>
+                  <p className="text-2xl leading-none">{title}</p>
                 </div>
               )}
 

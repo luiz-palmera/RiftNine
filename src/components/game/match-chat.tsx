@@ -23,18 +23,18 @@ export const MatchChat = ({ messages }: MatchChatProps) => {
   }, [messages]);
 
   return (
-    <div className="p-0.5 bg-purple clip-chamfer">
-      <div className="clip-chamfer bg-bg px-3 py-2 h-34 flex flex-col">
+    <div className="min-w-0 p-0.5 bg-purple clip-chamfer">
+      <div className="clip-chamfer bg-bg px-3 py-2 h-34 flex min-w-0 flex-col">
         <p className="text-purple-light text-xl leading-none"> CHAT</p>
         <div
           ref={messagesRef}
-          className="mt-2 flex max-h-28 flex-1 flex-col gap-1 overflow-y-auto pr-1 [scrollbar-color:var(--color-purple-light)_var(--color-bg)] [scrollbar-width:thin]"
+          className="mt-2 flex max-h-28 min-w-0 flex-1 flex-col gap-1 overflow-y-auto pr-1 [scrollbar-color:var(--color-purple-light)_var(--color-bg)] [scrollbar-width:thin]"
         >
           {messages.map((message) => (
             <p
               key={message.id}
               className={cn(
-                "text-lg leading-none",
+                "break-words text-lg leading-none",
                 message.tone === "system" && "text-muted-foreground",
                 message.tone === "success" && "text-green-400",
                 message.tone === "error" && "text-red-accent",
