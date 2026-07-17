@@ -7,14 +7,14 @@ type CardProps = {
 
 export const Card = ({ title, children }: CardProps) => {
   return (
-    <div className="p-1 bg-purple clip-chamfer">
-      <div className="bg-surface px-6 py-3 clip-chamfer">
+    <div className="min-w-0 p-1 bg-purple clip-chamfer">
+      <div className="min-w-0 bg-surface px-3 py-3 clip-chamfer sm:px-6">
         {title && (
           <div className="border-b-2 border-purple text-purple ">
             <p className="text-2xl">{title}</p>
           </div>
         )}
-        <div className="p-2 flex flex-col gap-2">{children}</div>
+        <div className="flex min-w-0 flex-col gap-2 p-2">{children}</div>
       </div>
     </div>
   );

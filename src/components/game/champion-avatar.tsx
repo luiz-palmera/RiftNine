@@ -11,8 +11,8 @@ type ChampionAvatarProps = {
 };
 
 const avatarSizeClassNames: Record<ChampionAvatarSize, string> = {
-  sm: "size-10 text-3xl",
-  lg: "size-20 text-6xl",
+  sm: "size-9 text-2xl sm:size-10 sm:text-3xl",
+  lg: "size-12 text-4xl sm:size-16 sm:text-5xl lg:size-20 lg:text-6xl",
 };
 
 export const ChampionAvatar = ({

@@ -69,6 +69,10 @@ export const Daily = () => {
   const [selectedCell, setSelectedCell] = useState<GameBoardPosition>();
   const [score, setScore] = useState(90);
   const [searchValue, setSearchValue] = useState("");
+  const [searchBarVariant, setSearchBarVariant] = useState<
+    "default" | "destructive"
+  >("default");
+  const [searchBarShakeKey, setSearchBarShakeKey] = useState(0);
   const [placeholder, setPlaceholder] = useState("Select a square to guess...");
   const [showResults, setShowResults] = useState(false);
   const [resultTime, setResultTime] = useState("00:00");
@@ -137,9 +141,15 @@ export const Daily = () => {
 
     setSelectedCell(cell);
     setSearchValue("");
+    setSearchBarVariant("default");
     setPlaceholder("Champion name");
     setSelectedCriteria(`${cell.row.label} + ${cell.column.label}`);
     focusSearchInput();
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
+    setSearchBarVariant("default");
   };
 
   const handleGuessSubmit = (value: string) => {
@@ -167,6 +177,8 @@ export const Daily = () => {
 
       pushChatMessage("You lost one life. -27pts", "error");
       setSearchValue("");
+      setSearchBarVariant("destructive");
+      setSearchBarShakeKey((currentShakeKey) => currentShakeKey + 1);
       setLives(nextLives);
       setScore(nextScore);
       setMissedCellIds((currentMissedCellIds) => ({
@@ -204,6 +216,7 @@ export const Daily = () => {
 
     setGuesses(nextGuesses);
     setSearchValue("");
+    setSearchBarVariant("default");
     pushChatMessage(`${solution.championName} locked in. + 9pts`, "success");
 
     if (!nextCell) {
@@ -250,11 +263,11 @@ export const Daily = () => {
         missedCellIds={missedCellIds}
       />
       <main
-        className="flex min-h-[calc(100vh-6.5rem)] items-start justify-center px-6 pt-10 pb-8"
+        className="flex min-h-[calc(100dvh-5rem)] items-start justify-center px-3 pt-4 pb-6 sm:px-6 sm:pt-10 sm:pb-8"
         onClick={handleFinishedMatchClick}
       >
-        <div className="grid w-full max-w-5xl grid-cols-[minmax(0,36rem)_minmax(0,24rem)] items-stretch gap-3">
-          <div className="col-start-1 row-start-1">
+        <div className="grid w-full max-w-5xl min-w-0 grid-cols-1 items-start gap-3 lg:grid-cols-[minmax(0,36rem)_minmax(0,24rem)] lg:items-stretch">
+          <div className="order-1 min-w-0 lg:col-start-1 lg:row-start-1">
             <GameBoard
               columns={mockDailyGame.columns}
               rows={mockDailyGame.rows}
@@ -264,10 +277,10 @@ export const Daily = () => {
             />
           </div>
 
-          <div className="col-start-2 row-start-1 flex min-h-0 flex-col">
-            <div className="flex items-center gap-2 text-4xl text-purple">
+          <div className="order-3 flex min-h-0 min-w-0 flex-col lg:col-start-2 lg:row-start-1">
+            <div className="flex min-w-0 items-center gap-2 text-3xl text-purple sm:text-4xl">
               <Calendar2 />
-              <p>Daily Challenge</p>
+              <p className="min-w-0 break-words">Daily Challenge</p>
             </div>
 
             <div className="flex-1">
@@ -281,17 +294,21 @@ export const Daily = () => {
             </div>
           </div>
 
-          <div className="col-start-1 row-start-2 flex flex-col gap-2">
-            <p className="text-2xl">{selectedCriteria}</p>
+          <div className="order-2 flex min-w-0 flex-col gap-2 lg:col-start-1 lg:row-start-2">
+            <p className="break-words text-xl sm:text-2xl">
+              {selectedCriteria}
+            </p>
 
             <SearchBar
               ref={searchInputRef}
               value={searchValue}
               placeholder={placeholder}
               disabled={!selectedCell}
+              variant={searchBarVariant}
+              shakeKey={searchBarShakeKey}
               suggestions={championSuggestions}
               isSubmitAllowed={isKnownChampion}
-              onChange={setSearchValue}
+              onChange={handleSearchChange}
               onSubmit={handleGuessSubmit}
             />
           </div>

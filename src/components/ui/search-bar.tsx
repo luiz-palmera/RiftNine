@@ -1,5 +1,6 @@
 import { ChampionAvatar } from "@/components/game/champion-avatar";
 import { cn } from "@/utils/cn";
+import { motion, useAnimationControls } from "motion/react";
 import { Search } from "pixelarticons/react";
 import {
   forwardRef,
@@ -19,10 +20,14 @@ export type SearchBarSuggestion = {
   emoji?: string;
 };
 
+type SearchBarVariant = "default" | "destructive";
+
 type SearchBarProps = {
   value?: string;
   placeholder?: string;
   disabled?: boolean;
+  variant?: SearchBarVariant;
+  shakeKey?: number;
   suggestions?: SearchBarSuggestion[];
   isSubmitAllowed?: (value: string) => boolean;
   onChange?: (value: string) => void;
@@ -36,6 +41,8 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
       value,
       placeholder = "Search Champions...",
       disabled,
+      variant = "default",
+      shakeKey = 0,
       suggestions = [],
       isSubmitAllowed,
       onChange,
@@ -45,6 +52,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
     ref,
   ) => {
     const listboxId = useId();
+    const shakeControls = useAnimationControls();
     const inputRef = useRef<HTMLInputElement>(null);
     const [internalValue, setInternalValue] = useState("");
     const [isSuggestionListVisible, setIsSuggestionListVisible] =
@@ -63,6 +71,17 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         : undefined;
 
     useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
+
+    useEffect(() => {
+      if (!shakeKey) {
+        return;
+      }
+
+      void shakeControls.start({
+        x: [0, -8, 8, -6, 6, 0],
+        transition: { duration: 0.32 },
+      });
+    }, [shakeControls, shakeKey]);
 
     useEffect(() => {
       setHighlightedSuggestionIndex(-1);
@@ -85,10 +104,16 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
       onChange?.(nextValue);
     };
 
-    const selectSuggestion = (suggestion: SearchBarSuggestion) => {
+    const selectSuggestion = (
+      suggestion: SearchBarSuggestion,
+      shouldSubmit = false,
+    ) => {
       updateValue(suggestion.label);
       closeSuggestions();
       onSuggestionSelect?.(suggestion);
+      if (shouldSubmit) {
+        onSubmit?.(suggestion.label);
+      }
       window.requestAnimationFrame(() => inputRef.current?.focus());
     };
 
@@ -147,13 +172,18 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         );
       }
 
-      if (
-        event.key === "Enter" &&
-        shouldShowSuggestions &&
-        highlightedSuggestionIndex >= 0
-      ) {
-        event.preventDefault();
-        selectSuggestion(visibleSuggestions[highlightedSuggestionIndex]);
+      if (event.key === "Enter" && shouldShowSuggestions) {
+        if (visibleSuggestions.length === 1) {
+          event.preventDefault();
+          closeSuggestions();
+          onSubmit?.(visibleSuggestions[0].label);
+          return;
+        }
+
+        if (highlightedSuggestionIndex >= 0) {
+          event.preventDefault();
+          selectSuggestion(visibleSuggestions[highlightedSuggestionIndex]);
+        }
       }
 
       if (event.key === "Escape" && shouldShowSuggestions) {
@@ -163,21 +193,32 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
     };
 
     return (
-      <div className="relative">
-        <form
+      <div className="relative min-w-0">
+        <motion.form
+          animate={shakeControls}
           className={cn(
-            "flex border-3 p-3 border-purple bg-surface items-center gap-2",
-            disabled
-              ? "border-gray-300 bg-gray-100"
-              : "border-purple bg-surface",
+            "flex min-w-0 items-center gap-2 border-3 border-purple bg-surface p-3",
+            disabled && "border-gray-300 bg-gray-100",
+            !disabled &&
+              variant === "default" &&
+              "border-purple bg-surface",
+            !disabled &&
+              variant === "destructive" &&
+              "border-red bg-surface",
           )}
           onSubmit={handleSubmit}
           autoComplete="off"
         >
-          <Search className={disabled ? "text-gray-300" : "text-purple"} />
+          <Search
+            className={cn(
+              disabled && "text-gray-300",
+              !disabled && variant === "default" && "text-purple",
+              !disabled && variant === "destructive" && "text-red",
+            )}
+          />
           <input
             ref={inputRef}
-            className="text-black flex items-center text-2xl outline-0 w-full disabled:opacity-60"
+            className="flex min-w-0 w-full items-center text-2xl text-black outline-0 disabled:opacity-60"
             placeholder={placeholder}
             value={inputValue}
             disabled={disabled}
@@ -195,7 +236,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
             }}
             onKeyDown={handleInputKeyDown}
           />
-        </form>
+        </motion.form>
 
         {shouldShowSuggestions && (
           <ul
@@ -215,12 +256,12 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
                     tabIndex={-1}
                     aria-selected={isHighlighted}
                     className={cn(
-                      "flex w-full cursor-pointer items-center gap-3 px-3 py-2 text-left text-2xl outline-0 transition-colors",
+                      "flex min-h-12 w-full cursor-pointer items-center gap-3 px-3 py-2 text-left text-xl outline-0 transition-colors sm:text-2xl",
                       isHighlighted ? "bg-purple-surface/15" : "hover:bg-muted",
                     )}
                     onMouseDown={(event) => {
                       event.preventDefault();
-                      selectSuggestion(suggestion);
+                      selectSuggestion(suggestion, true);
                     }}
                     onMouseEnter={() => setHighlightedSuggestionIndex(index)}
                   >
@@ -230,7 +271,9 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
                       championEmoji={suggestion.emoji}
                       size="sm"
                     />
-                    <span className="leading-none">{suggestion.label}</span>
+                    <span className="min-w-0 truncate leading-none">
+                      {suggestion.label}
+                    </span>
                   </button>
                 </li>
               );

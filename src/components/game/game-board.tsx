@@ -32,7 +32,10 @@ export const GameBoard = ({
 
   return (
     <div
-      className={cn("bg-purple-dark grid p-1 w-full max-w-xl", className)}
+      className={cn(
+        "mx-auto grid aspect-square w-full max-w-xl overflow-hidden bg-purple-dark p-1",
+        className,
+      )}
       style={gridSize}
       role="grid"
       aria-label="Daily Rift Nine board"

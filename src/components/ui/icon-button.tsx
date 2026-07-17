@@ -4,17 +4,24 @@ import type { ReactNode } from "react";
 type IconButtonProps = {
   onClick: () => void;
   children: ReactNode;
+  "aria-label"?: string;
 };
 
-export const IconButton = ({ onClick, children }: IconButtonProps) => {
+export const IconButton = ({
+  onClick,
+  children,
+  "aria-label": ariaLabel,
+}: IconButtonProps) => {
   return (
-    <motion.div
+    <motion.button
+      type="button"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className=" p-1 text-surface cursor-pointer"
+      className="inline-flex cursor-pointer items-center justify-center border-0 bg-transparent p-1 text-surface"
       onClick={onClick}
+      aria-label={ariaLabel}
     >
       {children}
-    </motion.div>
+    </motion.button>
   );
 };
