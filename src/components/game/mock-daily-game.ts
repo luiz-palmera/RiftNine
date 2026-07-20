@@ -1,6 +1,7 @@
 import draven from "@/assets/champions/DRAVEN.png";
 import gwen from "@/assets/champions/GWEN.png";
 import teemo from "@/assets/champions/teemo.png";
+import vayne from "@/assets/champions/vayne.png";
 import bandleCity from "@/assets/placeholders/indicators/bandle-city.png";
 import demacia from "@/assets/placeholders/indicators/demacia.png";
 import fighter from "@/assets/placeholders/indicators/fighter.png";
@@ -375,6 +376,7 @@ const mockChampions = {
   vayne: {
     championId: "vayne",
     championName: "Vayne",
+    championImg: vayne,
     championEmoji: "🕶️",
     indicatorIds: ["demacia", "marksman"],
   },

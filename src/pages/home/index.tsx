@@ -25,17 +25,8 @@ export const Home = () => {
         </p>
       </div>
       <div className="mt-5 flex flex-col p-5 items-center justify-center gap-5">
-        <Button
-          title="Daily"
-          variant="default"
-          onClick={() => navigate("/daily")}
-        />
-        <div className="group relative">
-          <Button title="VERSUS" variant="disabled" />
-          <div className="pointer-events-none absolute top-1/2 right-full mr-3 -translate-y-1/2 bg-text-main px-3 py-1 text-xl whitespace-nowrap text-surface opacity-0 pixel-shadow transition-opacity group-hover:opacity-100">
-            avaliable soon
-          </div>
-        </div>
+        <Button title="Daily" onClick={() => navigate("/daily")} />
+        <Button title="VERSUS" onClick={() => navigate("/versus")} />
       </div>
     </div>
   );
