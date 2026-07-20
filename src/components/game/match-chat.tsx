@@ -28,13 +28,13 @@ export const MatchChat = ({ messages }: MatchChatProps) => {
         <p className="text-purple-light text-xl leading-none"> CHAT</p>
         <div
           ref={messagesRef}
-          className="mt-2 flex max-h-28 min-w-0 flex-1 flex-col gap-1 overflow-y-auto pr-1 [scrollbar-color:var(--color-purple-light)_var(--color-bg)] [scrollbar-width:thin]"
+          className="mt-2 flex max-h-28 min-w-0 flex-1 flex-col gap-1 overflow-y-auto pr-1 [scrollbar-color:var(--color-purple-light)_var(--color-bg)] scrollbar-thin"
         >
           {messages.map((message) => (
             <p
               key={message.id}
               className={cn(
-                "break-words text-lg leading-none",
+                "wrap-break-words text-lg leading-none",
                 message.tone === "system" && "text-muted-foreground",
                 message.tone === "success" && "text-green-400",
                 message.tone === "error" && "text-red-accent",
